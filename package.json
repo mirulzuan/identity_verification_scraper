@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
+    "dev": "nodemon ./bin/www",
     "setup": "node db/setup.js"
   },
   "dependencies": {
@@ -14,5 +15,8 @@
     "morgan": "~1.10.0",
     "pug": "^3.0.3",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
   }
 }
