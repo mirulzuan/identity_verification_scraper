@@ -1,2 +1,2 @@
-/node_modules
-/db/spr_scraper.sqlite
+node_modules
+db/spr_scraper.db
