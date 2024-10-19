@@ -1,0 +1,13 @@
+extends ../layout
+
+block content
+  h3 User Verifications
+
+  form(action='/' method='POST')
+    div.grid-x
+      div.medium-6.cell
+        div.input-group
+          span.input-group-label MyKad Number:
+          input.input-group-field(type='text' name='identifier' id='identifier')
+          div.input-group-button
+            input.button(type='submit' value='Verify')

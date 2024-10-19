@@ -9,5 +9,8 @@ services:
       NODE_ENV: development
     volumes:
       - .:/spr_scraper
-      - /spr_scraper/node_modules
+      - node_modules:/spr_scraper/node_modules
     command: npm run dev
+
+volumes:
+  node_modules:
