@@ -3,11 +3,31 @@ extends ../layout
 block content
   h3 User Verifications
 
-  form(action='/' method='POST')
-    div.grid-x
-      div.medium-6.cell
+  div.grid-x
+    div.medium-6.cell
+      form(action='/' method='POST')
         div.input-group
           span.input-group-label MyKad Number:
           input.input-group-field(type='text' name='identifier' id='identifier')
           div.input-group-button
             input.button(type='submit' value='Verify')
+    div.medium-12.cell
+      if verifications
+        table
+          thead
+            tr
+              th MyKad Number
+              th Result
+              th Created at
+              th Updated at
+          tbody
+            each verification in verifications
+              tr
+                td= verification.identifier
+                td= verification.result
+                td= verification.createdAt.toISOString()
+                td= verification.updatedAt.toISOString()
+      else
+        p No verifications found.
+
+  

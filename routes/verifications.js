@@ -1,40 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db/conn');
+const Verification = require('../models/verification');
 
-router.get('/', function (req, res) {
-  res.render('verifications/index', {
-    title: 'External Verifications',
-    verifications: []
-  });
+router.get('/', async (req, res, next) => {
+  try {
+    const verifications = await Verification.findAll();
+    res.render('verifications/index', { verifications });
+  } catch (error) {
+    res.status(500).send('Error fetching verifications');
+  }
 });
 
-router.post('/', function (req, res, next) {
-  const { identifier, result } = req.body;
+router.post('/', async (req, res, next) => {
+  const { identifier } = req.body;
 
-  if (!identifier) {
-    return res.status(422)
-      .render('verifications/index', {
-        title: 'External Verifications',
-        verifications: [],
-        error: 'Identifier is required'
-      });
+  try {
+    const verification = await Verification.create({
+      identifier,
+      result: null,
+    });
+
+    res.redirect('/');
+  } catch (error) {
+    res.status(500).send('Error creating verification');
   }
-
-  const query = `
-    INSERT INTO verifications (identifier, result)
-    VALUES (?, ?)
-  `;
-
-  db.run(query, [identifier, result], function(err) {
-    if (err) {
-      console.error('Error inserting data:', err.message);
-      return res.status(500).send('Internal Server Error');
-    }
-
-    // Successfully inserted, respond with the ID of the new row
-    res.send(`Verification added with ID: ${this.lastID}`);
-  });
 });
 
 module.exports = router;

@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Run the build:css and setup scripts
-RUN npm run build:css && npm run setup
+RUN npm run build:css
 
 # Final stage - this stage will only include the necessary files
 FROM node:20-alpine
