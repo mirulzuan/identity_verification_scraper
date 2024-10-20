@@ -1,11 +1,11 @@
-const { raw } = require('express');
-const Verification = require('../models/verification');
 const axios = require('axios');
+const cheerio = require('cheerio');
+const Verification = require('../models/verification');
 
 class VerificatorService {
   static async createVerification(identifier) {
     try {
-      const verification = await Verification.create({identifier});
+      const verification = await Verification.create({ identifier });
       return verification;
     } catch (error) {
       console.error('Error creating verification record:', error);
@@ -15,7 +15,7 @@ class VerificatorService {
 
   static async getFormData() {
     try {
-      const response = await axios.get('https://mysprsemak.spr.gov.my/semakan/daftarPemilih', {withCredentials: true});
+      const response = await axios.get('https://mysprsemak.spr.gov.my/semakan/daftarPemilih', { withCredentials: true });
       return response;
     } catch (error) {
       console.error('Failed to get form data error:', error);
@@ -39,18 +39,21 @@ class VerificatorService {
       console.error('Failed to get cookies error:', error);
       throw error;
     }
-    
+
   }
 
-  static async updateCookies(verificationId, cookies) {
+  static async updateFormData(verificationId, cookies, token, captchaUrl, encodedCaptcha) {
     try {
       const verification = await Verification.findByPk(verificationId);
-      
+
       if (!verification) {
         throw new Error('Verification record not found');
       }
 
       verification.cookies = cookies;
+      verification.token = token;
+      verification.captchaUrl = captchaUrl;
+      verification.encodedCaptcha = encodedCaptcha;
       await verification.save();
       console.log('Cookies updated');
       return verification;
@@ -63,7 +66,7 @@ class VerificatorService {
   static async updateResult(verificationId, result) {
     try {
       const verification = await Verification.findByPk(verificationId);
-      
+
       if (!verification) {
         throw new Error('Verification record not found');
       }
@@ -78,15 +81,63 @@ class VerificatorService {
     }
   }
 
-  static async verify(identifier) {
+  static async encodeCaptcha(cookies, captchaUrl) {
+    try {
+      const cookieString = Object
+        .entries(cookies)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('; ');
+      const response = await axios.get(captchaUrl, {
+        headers: {'Cookie': cookieString},
+        responseType: 'arraybuffer'
+      });
+      const encodedCaptcha = Buffer
+        .from(response.data, 'binary')
+        .toString('base64');
+
+      return encodedCaptcha;
+    } catch (error) {
+      console.error('Failed to encode captcha:', error);
+      throw error;
+    }
+  }
+
+  static async startVerification(identifier) {
     try {
       const verification = await VerificatorService.createVerification(identifier);
       const verificationId = verification.id;
       const formData = await VerificatorService.getFormData();
-      const cookies = await VerificatorService.getCookies(formData);    
-      await VerificatorService.updateCookies(verificationId, cookies);
-      await VerificatorService.updateResult(verificationId, "result");
-      return {};
+      const cookies = await VerificatorService.getCookies(formData);
+      const $ = cheerio.load(formData.data);
+      const token = $('input[name="_token"]').val();
+      const captchaUrl = $('#formSemak img').first().attr('src');
+      const encodedCaptcha = await VerificatorService.encodeCaptcha(cookies, captchaUrl);;
+      await VerificatorService.updateFormData(verificationId, cookies, token, captchaUrl, encodedCaptcha);
+      return verification;
+    } catch (error) {
+      console.error('Error in verification process:', error);
+      throw error;
+    }
+  }
+
+  static async verify(verification, captcha) {
+    try {
+      const { identifier, cookies, token } = verification;
+      const cookieString = Object
+        .entries(cookies)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('; ');
+      const response = await axios.post('https://mysprsemak.spr.gov.my/semakan/daftarPemilihPapar', {
+        "_token": token,
+        "NoKp": identifier,
+        "captcha": captcha,
+      }, {
+        headers: {'Cookie': cookieString},
+      });
+      const $ = cheerio.load(response.data);
+      const result = $('td').filter((i, el) => $(el).text().trim() === 'Nama Penuh').next('td').text().trim();;
+      await VerificatorService.updateResult(verification.id, result);
+      return verification;
     } catch (error) {
       console.error('Error in verification process:', error);
       throw error;

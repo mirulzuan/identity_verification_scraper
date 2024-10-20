@@ -1,0 +1,45 @@
+extends ../layout
+
+block content
+  h3= "Verification#"+verification.id
+
+  div.grid-x
+    div.medium-6.cell
+      if verification
+        form(action=`/verify/${verification.id}` method='POST')
+          div.input-group
+            span.input-group-label Insert captcha:
+            input.input-group-field(type='text' name='captcha' id='captcha')
+            div.input-group-button
+              input.button(type='submit' value='Verify')
+
+        hr
+
+        table
+          tbody
+            tr
+              td
+                b MyKad number
+              td= verification.identifier
+            tr
+              td
+                b Result
+              td= verification.result
+            tr
+              td
+                b Encoded captcha
+              td
+                img(src="data:image/jpeg;base64," + verification.encodedCaptcha)
+            tr
+              td
+                b Created at
+              td= verification.createdAt.toISOString()
+            tr
+              td
+                b Updated at
+              td= verification.updatedAt.toISOString()
+      else
+        p No verification found.
+
+  hr
+  a.button(href='/') Back to verifications

@@ -10,27 +10,30 @@ block content
           span.input-group-label MyKad Number:
           input.input-group-field(type='text' name='identifier' id='identifier')
           div.input-group-button
-            input.button(type='submit' value='Verify')
+            input.button(type='submit' value='Start Verification')
     div.medium-12.cell
       if verifications
         table
           thead
             tr
-              th MyKad Number
-              th Cookies
+              th MyKad number
               th Result
+              th Token
+              th Encoded captcha
+              th Cookies
               th Created at
               th Updated at
           tbody
             each verification in verifications
               tr
                 td= verification.identifier
+                td= verification.result
+                td= verification.token
+                td
+                  img(src="data:image/jpeg;base64," + verification.encodedCaptcha)
                 td(style="width: 200px; white-space: pre-wrap;")
                   code= JSON.stringify(verification.cookies, null, 2)
-                td= verification.result
                 td= verification.createdAt.toISOString()
                 td= verification.updatedAt.toISOString()
       else
         p No verifications found.
-
-  

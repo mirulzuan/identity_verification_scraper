@@ -14,8 +14,16 @@ const Verification = sequelize.define('Verification', {
     type: DataTypes.JSON,
     allowNull: true,
   },
+  token: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   captchaUrl: {
     type: DataTypes.STRING,
+    allowNull: true,
+  },
+  encodedCaptcha: {
+    type: DataTypes.TEXT,
     allowNull: true,
   },
 });
