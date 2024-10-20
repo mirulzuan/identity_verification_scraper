@@ -1,5 +1,7 @@
 # identity_verification_scraper
-A simple web scraper to verify the validity of a user's Identification Card Number (IC) by scraping the Suruhanjaya Pilihan Raya (SPR) portal. Written with ExpressJS.
+A simple web scraper to verify the validity of a user's Identification Card Number (IC) by scraping the Suruhanjaya Pilihan Raya (SPR) portal. Use case: To check if IC and name are matched (of course, we can fetch more data from the portal if needed 😉).
+
+### Written with ExpressJS.
 
 How to start?
 ```
