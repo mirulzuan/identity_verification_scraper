@@ -8,6 +8,7 @@
     "build:css": "cp -r ./node_modules/foundation-sites/dist/css/foundation.min.css ./public/stylesheets/"
   },
   "dependencies": {
+    "axios": "^1.7.7",
     "cookie-parser": "~1.4.4",
     "debug": "~4.3.7",
     "express": "^4.21.1",

@@ -17,6 +17,7 @@ block content
           thead
             tr
               th MyKad Number
+              th Cookies
               th Result
               th Created at
               th Updated at
@@ -24,6 +25,8 @@ block content
             each verification in verifications
               tr
                 td= verification.identifier
+                td(style="width: 200px; white-space: pre-wrap;")
+                  code= JSON.stringify(verification.cookies, null, 2)
                 td= verification.result
                 td= verification.createdAt.toISOString()
                 td= verification.updatedAt.toISOString()
